@@ -6,11 +6,14 @@ if [ "$1" = "build" ]; then
     (cd $DIR && \
       ./configure CXX='clang++ -std=c++11 -stdlib=libc++' --enable-cxx --enable-gmpcompat --enable-shared --disable-static && \
       make)
-  elif [ "$SYSTEM_NAME" = "MINGW64_NT-6.1" ]; then
+  elif echo "$SYSTEM_NAME" | grep -q "MINGW64_NT"; then
     echo "Building for Windows"
     (cd $DIR && \
     ./configure --enable-cxx --enable-gmpcompat --enable-shared --disable-static && \
     make)
+  elif echo "$SYSTEM_NAME" | grep -q "MSYS"; then
+    echo "ERROR: the MSYS shell is not supported. Please use the MinGW-w64 Win64 Shell instead."
+    exit 1
   else
     echo "ERROR: Unrecognized or unsupported platform: $SYSTEM_NAME!"
     exit 1
