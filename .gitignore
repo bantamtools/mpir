@@ -197,10 +197,36 @@ yasm/po/POTFILES
 yasm/stamp-h1
 yasm_mac.inc
 gmp.h
+gmpxx.h
 longlong.h
 gmp-mparam.h
 tune/sqr_basecase.c
 autoscript
+
+# autogen files
+yasm/gas-token.c
+yasm/genmacro
+yasm/genmodule
+yasm/genperf
+yasm/genstring
+yasm/genversion
+yasm/lc3bid.c
+yasm/license.c
+yasm/module.c
+yasm/nasm-macros.c
+yasm/nasm-token.c
+yasm/nasm-version.c
+yasm/re2c
+yasm/version.mac
+yasm/vsyasm
+yasm/win64-gas.c
+yasm/win64-nasm.c
+yasm/x86cpu.c
+yasm/x86insn_gas.c
+yasm/x86insn_nasm.c
+yasm/x86regtmod.c
+yasm/yasm
+yasm/ytasm
 
 /build.vc11/output_params.bat
 /build.vc11/mpir-tests/test-config.props
