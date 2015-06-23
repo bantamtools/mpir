@@ -227,6 +227,7 @@ yasm/x86insn_nasm.c
 yasm/x86regtmod.c
 yasm/yasm
 yasm/ytasm
+yasm/*.exe
 
 /build.vc11/output_params.bat
 /build.vc11/mpir-tests/test-config.props
