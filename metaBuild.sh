@@ -9,7 +9,7 @@ if [ "$1" = "build" ]; then
   elif echo "$SYSTEM_NAME" | grep -q "MINGW64_NT"; then
     echo "Building for Windows"
     (cd $DIR && \
-    ./configure --enable-cxx --enable-gmpcompat --enable-shared --disable-static && \
+    ./configure --host=corei7-w64-mingw64 --enable-fat --enable-cxx --enable-gmpcompat --enable-shared --disable-static && \
     make)
   elif echo "$SYSTEM_NAME" | grep -q "MSYS"; then
     echo "ERROR: the MSYS shell is not supported. Please use the MinGW-w64 Win64 Shell instead."
