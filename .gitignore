@@ -173,6 +173,7 @@ pip-log.txt
 mpn/*.c
 mpn/*.as
 mpn/*.asm
+mpn/*.s
 Makefile
 mpir.h
 config.h
