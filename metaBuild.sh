@@ -1,7 +1,7 @@
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 PREFIX=$DIR/.libs
 
-if [ "$3x" = "x" ]; then
+if [ -z "$3" ]; then
   ARCH="x86-64"
 else 
   ARCH="$3"
