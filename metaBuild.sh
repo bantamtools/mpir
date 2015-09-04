@@ -1,12 +1,19 @@
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 PREFIX=$DIR/.libs
 
+if [ "$3x" = "x" ]; then
+  ARCH="x86-64"
+else 
+  ARCH="$3"
+fi
+
+
 if [ "$1" = "build" ]; then
   SYSTEM_NAME=`uname -s` 
   if [ "$SYSTEM_NAME" = "Darwin" ]; then
-    echo "Building for OSX"
+    echo "Building for OSX, architecture set to $ARCH"
     (cd $DIR && \
-    ./configure --libdir=$PREFIX CXX='clang++ -std=c++11 -stdlib=libc++' --enable-cxx --enable-gmpcompat --disable-static --enable-shared && \
+    ./configure --libdir=$PREFIX CXX='clang++ -std=c++11 -stdlib=libc++' CXXFLAGS="-march=$ARCH -mtune=generic -mmacosx-version-min=10.8" CFLAGS="-march=$ARCH -mtune=generic" --enable-cxx --enable-gmpcompat --disable-static --enable-shared && \
     make)
   elif echo "$SYSTEM_NAME" | grep -q "MINGW64_NT"; then
     echo "Building for Windows"
