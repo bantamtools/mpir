@@ -10,13 +10,15 @@ fi
 
 if [ "$1" = "build" ]; then
   SYSTEM_NAME=`uname -s` 
-  if [ "$SYSTEM_NAME" = "Darwin" -o "$SYSTEM_NAME" = "Linux" ]; then
+  if [ "$SYSTEM_NAME" = "Darwin" ]; then
     echo "Building for OSX, architecture set to $ARCH"
-    if [ "$SYSTEM_NAME" = "Dwarin" ]; then
-      DARWIN_ARGS="--mmacosx-version-min=10.8 -stdlib=libc++"
-    fi
     (cd $DIR && \
-    ./configure --libdir=$PREFIX CC=clang CXX=clang++ CXXFLAGS="-std=c++11 -march=$ARCH -mtune=generic $DARWIN_ARGS" CFLAGS="-march=$ARCH -mtune=generic" --enable-cxx --enable-gmpcompat --disable-static --enable-shared && \
+    ./configure --libdir=$PREFIX CXX='clang++ -std=c++11 -stdlib=libc++' CXXFLAGS="-march=$ARCH -mtune=generic -mmacosx-version-min=10.8" CFLAGS="-march=$ARCH -mtune=generic" --enable-cxx --enable-gmpcompat --disable-static --enable-shared && \
+    make)
+  elif ["$SYSTEM_NAME" = "Linux" ]; then
+    echo "Building for Linux, architecture set to $ARCH"
+    (cd $DIR && \
+    ./configure --libdir=$PREFIX CC=clang CXX=clang++ CXXFLAGS="-std=c++11 -march=$ARCH -mtune=generic" CFLAGS="-march=$ARCH -mtune=generic" --enable-cxx --enable-gmpcompat --disable-static --enable-shared && \
     make)
   elif echo "$SYSTEM_NAME" | grep -q "MINGW64_NT"; then
     echo "Building for Windows"
