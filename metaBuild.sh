@@ -15,7 +15,7 @@ if [ "$1" = "build" ]; then
     (cd $DIR && \
     ./configure --libdir=$PREFIX CXX='clang++ -std=c++11 -stdlib=libc++' CXXFLAGS="-march=$ARCH -mtune=generic -mmacosx-version-min=10.8" CFLAGS="-march=$ARCH -mtune=generic" --enable-cxx --enable-gmpcompat --disable-static --enable-shared && \
     make)
-  elif ["$SYSTEM_NAME" = "Linux" ]; then
+  elif [ "$SYSTEM_NAME" = "Linux" ]; then
     echo "Building for Linux, architecture set to $ARCH"
     (cd $DIR && \
     ./configure --libdir=$PREFIX CC=clang CXX=clang++ CXXFLAGS="-std=c++11 -march=$ARCH -mtune=generic" CFLAGS="-march=$ARCH -mtune=generic" --enable-cxx --enable-gmpcompat --disable-static --enable-shared && \
