@@ -8,7 +8,7 @@ else
 fi
 
 
-if [ "$1" = "build" ]; then
+if [ "$1" = "release" -o "$1" = "debug" ]; then
   SYSTEM_NAME=`uname -s` 
   if [ "$SYSTEM_NAME" = "Darwin" ]; then
     echo "Building for OSX, architecture set to $ARCH"
