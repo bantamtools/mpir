@@ -1,15 +1,15 @@
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 PREFIX=$DIR/.libs
-
-if [ -z "$3" ]; then
+echo $DIR
+if [ -z "$2" ]; then
   ARCH="x86-64"
-else 
-  ARCH="$3"
+else
+  ARCH="$2"
 fi
 
 
 if [ "$1" = "release" -o "$1" = "debug" ]; then
-  SYSTEM_NAME=`uname -s` 
+  SYSTEM_NAME=`uname -s`
   if [ "$SYSTEM_NAME" = "Darwin" ]; then
     echo "Building for OSX, architecture set to $ARCH"
     (cd $DIR && \
@@ -17,9 +17,16 @@ if [ "$1" = "release" -o "$1" = "debug" ]; then
     make)
   elif [ "$SYSTEM_NAME" = "Linux" ]; then
     echo "Building for Linux, architecture set to $ARCH"
-    (cd $DIR && \
-    ./configure --libdir=$PREFIX CC=clang CXX=clang++ CXXFLAGS="-std=c++11 -march=$ARCH -mtune=generic" CFLAGS="-march=$ARCH -mtune=generic" --enable-cxx --enable-gmpcompat --disable-static --enable-shared && \
-    make)
+    if [ "$ARCH" = "arm" ]; then
+      # FIXME: Not sure how to get clang working in dockcross yet
+      (cd $DIR && \
+      ./configure --build=$ARCH --libdir=$PREFIX --enable-cxx --enable-gmpcompat --disable-static --enable-shared && \
+      make)
+    else
+      (cd $DIR && \
+      ./configure --build=$ARCH --libdir=$PREFIX CC=clang CXX=clang++ CXXFLAGS="-std=c++11 -march=$ARCH -mtune=generic" CFLAGS="-march=$ARCH -mtune=generic" --enable-cxx --enable-gmpcompat --disable-static --enable-shared && \
+      make)
+    fi
   elif echo "$SYSTEM_NAME" | grep -q "MINGW64_NT"; then
     echo "Building for Windows"
     (cd $DIR && \
