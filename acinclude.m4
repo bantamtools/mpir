@@ -44,7 +44,7 @@ define(X86_PATTERN,
 [[i?86*-*-* | k[5-8]*-*-* | pentium*-*-* | prescott-*-* | core-*-* | athlon-*-* | viac3*-*-*]])
 
 define(X86_64_PATTERN,
-[[x86_64-*-* | netburst-*-* | netburstlahf-*-* | k8-*-* | k10-*-* | k102-*-* | k103-*-* | core2-*-* | penryn-*-* | nehalem-*-* | westmere-*-* | sandybridge-*-* | atom-*-* | nano-*-* | bobcat-*-* | bulldozer-*-* | piledriver-*-* | ivybridge-*-* | haswell-*-*]])
+[[x86_64-*-* | netburst-*-* | netburstlahf-*-* | k8-*-* | k10-*-* | k102-*-* | k103-*-* | core2-*-* | penryn-*-* | nehalem-*-* | westmere-*-* | sandybridge-*-* | atom-*-* | nano-*-* | bobcat-*-* | bulldozer-*-* | piledriver-*-* | ivybridge-*-* | haswell-*-*  | haswellavx-*-* | broadwell-*-* | skylake-*-* | skylakeavx-*-*]])
 
 dnl  GMP_FAT_SUFFIX(DSTVAR, DIRECTORY)
 dnl  ---------------------------------
@@ -60,14 +60,14 @@ dnl
 dnl      x86         ->  x86
 dnl      x86/k6      ->  k6
 dnl      x86/k6/mmx  ->  k6_mmx
-dnl	also want to turn x86_64w into x86_64
+dnl also want to turn x86_64w into x86_64
 define(GMP_FAT_SUFFIX,
 [
-	if test "$2" = "x86_64w"; then 
-		[$1="x86_64"]
-	else
-		[$1=`echo $2 | sed -e '/\//s:^[^/]*/::' -e 's:[\\/]:_:g'`]
-	fi
+  if test "$2" = "x86_64w"; then 
+    [$1="x86_64"]
+  else
+    [$1=`echo $2 | sed -e '/\//s:^[^/]*/::' -e 's:[\\/]:_:g'`]
+  fi
 ])
 
 
@@ -137,9 +137,9 @@ dnl  /dev/null as a parameter prevents a hang if $2 is accidentally omitted.
 define(GMP_HEADER_GETVAL,
 [patsubst(patsubst(
 esyscmd([grep "^#define $1 " $2 /dev/null 2>/dev/null]),
-[^.*$1[ 	]+],[]),
+[^.*$1[   ]+],[]),
 [[
- 	]*$],[])])
+  ]*$],[])])
 
 
 dnl  GMP_VERSION
@@ -330,7 +330,7 @@ dnl ' <- balance the quotes for emacs sh-mode
   if test "$gmp_tmp_val" = good; then
     gmp_cv_prog_m4="m4"
   else
-    IFS="${IFS= 	}"; ac_save_ifs="$IFS"; IFS=":"
+    IFS="${IFS=   }"; ac_save_ifs="$IFS"; IFS=":"
 dnl $ac_dummy forces splitting on constant user-supplied paths.
 dnl POSIX.2 word splitting is done only on the output of word expansions,
 dnl not every word.  This closes a longstanding sh security hole.
@@ -584,11 +584,14 @@ GMP_PROG_CC_WORKS_PART([$1], [long long reliability test 1],
 
 #if defined(__GNUC__) && !defined(__clang__)
 typedef unsigned long long t1;typedef t1*t2;
+#if defined(__GNUC_STDC_INLINE__)  /* e.g. GCC 5.x defaults to this, not __GNUC_GNU_INLINE__ */
+extern
+#endif
 __inline__ t1 e(t2 rp,t2 up,int n,t1 v0)
 {t1 c,x,r;int i;if(v0){c=1;for(i=1;i<n;i++){x=up[i];r=x+1;rp[i]=r;}}return c;}
-f(){static const struct{t1 n;t1 src[9];t1 want[9];}d[]={{1,{0},{1}},};t1 got[9];int i;
+void f(){static const struct{t1 n;t1 src[9];t1 want[9];}d[]={{1,{0},{1}},};t1 got[9];int i;
 for(i=0;i<1;i++){if(e(got,got,9,d[i].n)==0)h();g(i,d[i].src,d[i].n,got,d[i].want,9);if(d[i].n)h();}}
-h(){}g(){}
+void h(){} void g(){}
 #else
 int dummy;
 #endif
@@ -600,8 +603,9 @@ GMP_PROG_CC_WORKS_PART([$1], [long long reliability test 2],
    1666 to get an ICE with -O1 -mpowerpc64.  */
 
 #ifdef __GNUC__
-f(int u){int i;long long x;x=u?~0:0;if(x)for(i=0;i<9;i++);x&=g();if(x)g();}
-g(){}
+extern int g();
+void f(int u){int i;long long x;x=u?~0:0;if(x)for(i=0;i<9;i++);x&=g();if(x)g();}
+int g(){return 0;}
 #else
 int dummy;
 #endif
@@ -696,8 +700,8 @@ main ()
   for (i = 0; i < 528; i += 22)
     {
       lshift_com (r2, a,
-		  i / (8 * sizeof (unsigned long)) + 1,
-		  i % (8 * sizeof (unsigned long)));
+      i / (8 * sizeof (unsigned long)) + 1,
+      i % (8 * sizeof (unsigned long)));
       r2 += 88 + 1;
     }
   if (r[2048] != 0 || r[2049] != 0 || r[2050] != 0 || r[2051] != 0 ||
@@ -1201,19 +1205,19 @@ dnl  suffixes ourselves.
 
 AC_DEFUN([GMP_OS_X86_XMM],
 [AC_CACHE_CHECK([whether the operating system supports XMM registers],
-		gmp_cv_os_x86_xmm,
+    gmp_cv_os_x86_xmm,
 [if test "$build" = "$host"; then
   # remove anything that might look like compiler output to our "||" expression
   rm -f conftest* a.out b.out a.exe a_out.exe
   cat >conftest.s <<EOF
-	.text
+  .text
 main:
 _main:
-	.globl	main
-	.globl	_main
-	.byte	0x0f, 0x57, 0xc0
-	xorl	%eax, %eax
-	ret
+  .globl  main
+  .globl  _main
+  .byte 0x0f, 0x57, 0xc0
+  xorl  %eax, %eax
+  ret
 EOF
   gmp_compile="$1 conftest.s -o conftest >&AC_FD_CC"
   if AC_TRY_EVAL(gmp_compile); then
@@ -1269,7 +1273,7 @@ AC_DEFUN([GMP_HPPA_LEVEL_20],
 [AC_MSG_CHECKING([$1 assembler knows hppa 2.0])
 result=no
 cat >conftest.s <<EOF
-	.level 2.0
+  .level 2.0
 EOF
 gmp_compile="$1 -c conftest.s >&AC_FD_CC 2>&1"
 if AC_TRY_EVAL(gmp_compile); then
@@ -1535,7 +1539,7 @@ AC_CACHE_CHECK([for assembler label suffix],
 for i in "" ":"; do
   echo "trying $i" >&AC_FD_CC
   GMP_TRY_ASSEMBLE(
-[	$gmp_cv_asm_text
+[ $gmp_cv_asm_text
 somelabel$i],
     [gmp_cv_asm_label_suffix=$i
      rm -f conftest*
@@ -1630,13 +1634,13 @@ AC_REQUIRE([GMP_PROG_NM])
 AC_CACHE_CHECK([if .align assembly directive is logarithmic],
                gmp_cv_asm_align_log,
 [GMP_TRY_ASSEMBLE(
-[      	$gmp_cv_asm_data
-      	.align  4
-	$gmp_cv_asm_globl	foo
-	$gmp_cv_asm_byte	1
-	.align	4
+[       $gmp_cv_asm_data
+        .align  4
+  $gmp_cv_asm_globl foo
+  $gmp_cv_asm_byte  1
+  .align  4
 foo$gmp_cv_asm_label_suffix
-	$gmp_cv_asm_byte	2],
+  $gmp_cv_asm_byte  2],
   [gmp_tmp_val=[`$NM conftest.$OBJEXT | grep foo | \
      sed -e 's;[[][0-9][]]\(.*\);\1;' -e 's;[^1-9]*\([0-9]*\).*;\1;'`]
   if test "$gmp_tmp_val" = "10" || test "$gmp_tmp_val" = "16"; then
@@ -1685,10 +1689,10 @@ AC_DEFUN([GMP_ASM_ALIGN_FILL_0x90],
 AC_CACHE_CHECK([if the .align directive accepts an 0x90 fill in .text],
                gmp_cv_asm_align_fill_0x90,
 [GMP_TRY_ASSEMBLE(
-[      	$gmp_cv_asm_text
-      	.align  4, 0x90
-	.byte   0
-      	.align  4, 0x90],
+[       $gmp_cv_asm_text
+        .align  4, 0x90
+  .byte   0
+        .align  4, 0x90],
 [if grep "Warning: Fill parameter ignored for executable section" conftest.out >/dev/null; then
   echo "Supressing this warning by omitting 0x90" 1>&AC_FD_CC
   gmp_cv_asm_align_fill_0x90=no
@@ -1717,8 +1721,8 @@ AC_CACHE_CHECK([for assembler byte directive],
 [for i in .byte data1; do
   echo "trying $i" >&AC_FD_CC
   GMP_TRY_ASSEMBLE(
-[	$gmp_cv_asm_data
-	$i	0
+[ $gmp_cv_asm_data
+  $i  0
 ],
     [gmp_cv_asm_byte=$i
      rm -f conftest*
@@ -1743,7 +1747,7 @@ AC_DEFUN([GMP_ASM_TEXT],
                 gmp_cv_asm_text,
 [for i in ".text" ".code" [".csect .text[PR]"]; do
   echo "trying $i" >&AC_FD_CC
-  GMP_TRY_ASSEMBLE([	$i],
+  GMP_TRY_ASSEMBLE([  $i],
     [gmp_cv_asm_text=$i
      rm -f conftest*
      break])
@@ -1824,12 +1828,12 @@ if AC_TRY_EVAL(gmp_compile); then
     # take the last directive before our label (hence skipping segments
     # getting debugging info etc)
     tmp_match=`sed -n ["/^${tmp_gsym_prefix}foo$gmp_cv_asm_label_suffix/q
-                        /^[. 	]*data/p
-                        /^[. 	]*rdata/p
-                        /^[. 	]*text/p
-                        /^[. 	]*section/p
-                        /^[. 	]*csect/p
-                        /^[. 	]*CSECT/p"] conftest.s | sed -n '$p'`
+                        /^[.  ]*data/p
+                        /^[.  ]*rdata/p
+                        /^[.  ]*text/p
+                        /^[.  ]*section/p
+                        /^[.  ]*csect/p
+                        /^[.  ]*CSECT/p"] conftest.s | sed -n '$p'`
     echo "Match: $tmp_match" >&AC_FD_CC
     if test -n "$tmp_match"; then
       gmp_cv_asm_rodata=$tmp_match
@@ -1913,10 +1917,10 @@ AC_DEFUN([GMP_ASM_TYPE],
                 gmp_cv_asm_type,
 [gmp_cv_asm_type=
 for gmp_tmp_prefix in @ \# %; do
-  GMP_TRY_ASSEMBLE([	.type	sym,${gmp_tmp_prefix}function],
+  GMP_TRY_ASSEMBLE([  .type sym,${gmp_tmp_prefix}function],
     [if grep "\.type pseudo-op used outside of \.def/\.endef ignored" conftest.out >/dev/null; then : ;
     else
-      gmp_cv_asm_type=".type	\$][1,${gmp_tmp_prefix}\$][2"
+      gmp_cv_asm_type=".type  \$][1,${gmp_tmp_prefix}\$][2"
       break
     fi])
 done
@@ -1934,10 +1938,10 @@ AC_DEFUN([GMP_ASM_SIZE],
 [AC_CACHE_CHECK([for assembler .size directive],
                 gmp_cv_asm_size,
 [gmp_cv_asm_size=
-GMP_TRY_ASSEMBLE([	.size	sym,1],
+GMP_TRY_ASSEMBLE([  .size sym,1],
   [if grep "\.size pseudo-op used outside of \.def/\.endef ignored" conftest.out >/dev/null; then : ;
   else
-    gmp_cv_asm_size=".size	\$][1,\$][2"
+    gmp_cv_asm_size=".size  \$][1,\$][2"
   fi])
 ])
 echo ["define(<SIZE>, <$gmp_cv_asm_size>)"] >> $gmp_tmpconfigm4
@@ -1993,14 +1997,14 @@ AC_REQUIRE([GMP_ASM_GLOBL_ATTR])
 AC_REQUIRE([GMP_ASM_LABEL_SUFFIX])
 AC_REQUIRE([GMP_ASM_UNDERSCORE])
 AC_CACHE_CHECK([for assembler COFF type directives],
-		gmp_cv_asm_x86_coff_type,
+    gmp_cv_asm_x86_coff_type,
 [GMP_TRY_ASSEMBLE(
-[	$gmp_cv_asm_text
-	$gmp_cv_asm_globl ${tmp_gsym_prefix}foo$gmp_cv_asm_globl_attr
-	.def	${tmp_gsym_prefix}foo
-	.scl	2
-	.type	32
-	.endef
+[ $gmp_cv_asm_text
+  $gmp_cv_asm_globl ${tmp_gsym_prefix}foo$gmp_cv_asm_globl_attr
+  .def  ${tmp_gsym_prefix}foo
+  .scl  2
+  .type 32
+  .endef
 ${tmp_gsym_prefix}foo$gmp_cv_asm_label_suffix
 ],
   [gmp_cv_asm_x86_coff_type=yes],
@@ -2053,7 +2057,7 @@ AC_CACHE_CHECK([for assembler local label prefix],
 for gmp_tmp_pre in L .L $ L$; do
   echo "Trying $gmp_tmp_pre" >&AC_FD_CC
   GMP_TRY_ASSEMBLE(
-[	$gmp_cv_asm_text
+[ $gmp_cv_asm_text
 dummy${gmp_cv_asm_label_suffix}
 ${gmp_tmp_pre}gurkmacka${gmp_cv_asm_label_suffix}],
   [if $NM conftest.$OBJEXT >conftest.nm 2>&AC_FD_CC; then : ; else
@@ -2109,7 +2113,7 @@ AC_REQUIRE([GMP_ASM_GLOBL])
 AC_REQUIRE([GMP_ASM_LABEL_SUFFIX])
 AC_REQUIRE([GMP_PROG_NM])
 AC_CACHE_CHECK([how to define a 32-bit word],
-	       gmp_cv_asm_w32,
+         gmp_cv_asm_w32,
 [case $host in 
   *-*-hpux*)
     # FIXME: HPUX puts first symbol at 0x40000000, breaking our assumption
@@ -2123,11 +2127,11 @@ AC_CACHE_CHECK([how to define a 32-bit word],
     gmp_tmp_val=
     for gmp_tmp_op in .long .word data4; do
       GMP_TRY_ASSEMBLE(
-[	$gmp_cv_asm_data
-	$gmp_cv_asm_globl	foo
-	$gmp_tmp_op	0
+[ $gmp_cv_asm_data
+  $gmp_cv_asm_globl foo
+  $gmp_tmp_op 0
 foo$gmp_cv_asm_label_suffix
-	$gmp_cv_asm_byte	0],
+  $gmp_cv_asm_byte  0],
         [gmp_tmp_val=[`$NM conftest.$OBJEXT | grep foo | \
           sed -e 's;[[][0-9][]]\(.*\);\1;' -e 's;[^1-9]*\([0-9]*\).*;\1;'`]
         if test "$gmp_tmp_val" = 4; then
@@ -2203,10 +2207,10 @@ else
 fi
 for tmp_underscore in "" "_"; do
   cat >conftest.s <<EOF
-	$gmp_cv_asm_text
-	$gmp_cv_asm_globl ${tmp_gsym_prefix}main$gmp_cv_asm_globl_attr
+  $gmp_cv_asm_text
+  $gmp_cv_asm_globl ${tmp_gsym_prefix}main$gmp_cv_asm_globl_attr
 ${tmp_gsym_prefix}main$gmp_cv_asm_label_suffix
-	addl	$ ${tmp_underscore}_GLOBAL_OFFSET_TABLE_, %ebx
+  addl  $ ${tmp_underscore}_GLOBAL_OFFSET_TABLE_, %ebx
 EOF
   gmp_compile="$CCAS $CFLAGS $CPPFLAGS $lt_prog_compiler_pic conftest.s >&AC_FD_CC && $CC $CFLAGS $CPPFLAGS $lt_prog_compiler_pic conftest.$OBJEXT >&AC_FD_CC"
   if AC_TRY_EVAL(gmp_compile); then
@@ -2324,10 +2328,10 @@ END {
 }
 ]EOF
 cat >conftest.s <<\EOF
-[	.text
-	.byte	1, 35, 69, 103, 137, 171, 205, 239
-	addl	$_GLOBAL_OFFSET_TABLE_, %eax
-	.byte	254, 220, 186, 152, 118, 84, 50, 16
+[ .text
+  .byte 1, 35, 69, 103, 137, 171, 205, 239
+  addl  $_GLOBAL_OFFSET_TABLE_, %eax
+  .byte 254, 220, 186, 152, 118, 84, 50, 16
 ]EOF
 tmp_got_good=yes
 gmp_compile="$1 -fPIC -o conftest.o -c conftest.s >&AC_FD_CC 2>&1"
@@ -2360,10 +2364,10 @@ dnl  this in the code, so just detect and reject.
 
 AC_DEFUN([GMP_ASM_X86_MMX],
 [AC_CACHE_CHECK([if the assembler knows about MMX instructions],
-		gmp_cv_asm_x86_mmx,
+    gmp_cv_asm_x86_mmx,
 [GMP_TRY_ASSEMBLE(
-[	.text
-	movq	%mm0, %mm1],
+[ .text
+  movq  %mm0, %mm1],
 [gmp_cv_asm_x86_mmx=yes
 case $host in
 *-*-solaris*)
@@ -2413,10 +2417,10 @@ dnl  --------------------
 AC_DEFUN([GMP_ASM_X86_SHLDL_CL],
 [AC_REQUIRE([GMP_ASM_TEXT])
 AC_CACHE_CHECK([if the assembler takes cl with shldl],
-		gmp_cv_asm_x86_shldl_cl,
+    gmp_cv_asm_x86_shldl_cl,
 [GMP_TRY_ASSEMBLE(
-[	$gmp_cv_asm_text
-	shldl	%cl, %eax, %ebx],
+[ $gmp_cv_asm_text
+  shldl %cl, %eax, %ebx],
   gmp_cv_asm_x86_shldl_cl=yes,
   gmp_cv_asm_x86_shldl_cl=no)
 ])
@@ -2439,10 +2443,10 @@ dnl  needed at all, at least for just checking instruction syntax.
 
 AC_DEFUN([GMP_ASM_X86_SSE2],
 [AC_CACHE_CHECK([if the assembler knows about SSE2 instructions],
-		gmp_cv_asm_x86_sse2,
+    gmp_cv_asm_x86_sse2,
 [GMP_TRY_ASSEMBLE(
-[	.text
-	paddq	%mm0, %mm1],
+[ .text
+  paddq %mm0, %mm1],
   [gmp_cv_asm_x86_sse2=yes],
   [gmp_cv_asm_x86_sse2=no])
 ])
@@ -2575,7 +2579,7 @@ dnl  match everything good).
 
 AC_DEFUN([GMP_ASM_IA64_ALIGN_OK],
 [AC_CACHE_CHECK([whether assembler .align padding is good],
-		gmp_cv_asm_ia64_align_ok,
+    gmp_cv_asm_ia64_align_ok,
 [cat >conftest.awk <<\EOF
 [BEGIN {
   want[0]  = "011"
@@ -2657,15 +2661,15 @@ END {
 }
 ]EOF
 GMP_TRY_ASSEMBLE(
-[	.text
-	.align	32
-{ .mmi;	add	r14 = r15, r16
-	add	r17 = r18, r19
-	add	r20 = r21, r22 ;; }
-	.align	32
-{ .mmi;	add	r23 = r24, r25
-	add	r26 = r27, r28
-	add	r29 = r30, r31 ;; }
+[ .text
+  .align  32
+{ .mmi; add r14 = r15, r16
+  add r17 = r18, r19
+  add r20 = r21, r22 ;; }
+  .align  32
+{ .mmi; add r23 = r24, r25
+  add r26 = r27, r28
+  add r29 = r30, r31 ;; }
 ],
   [gmp_cv_asm_ia64_align_ok=`od -b conftest.$OBJEXT | $AWK -f conftest.awk`],
   [AC_MSG_WARN([oops, cannot compile test program])
@@ -2735,12 +2739,12 @@ AC_DEFUN([GMP_ASM_POWERPC_R_REGISTERS],
 AC_CACHE_CHECK([if the assembler needs r on registers],
                gmp_cv_asm_powerpc_r_registers,
 [GMP_TRY_ASSEMBLE(
-[	$gmp_cv_asm_text
-	mtctr	6],
+[ $gmp_cv_asm_text
+  mtctr 6],
 [gmp_cv_asm_powerpc_r_registers=no],
 [GMP_TRY_ASSEMBLE(
-[	$gmp_cv_asm_text
-	mtctr	r6],
+[ $gmp_cv_asm_text
+  mtctr r6],
 [gmp_cv_asm_powerpc_r_registers=yes],
 [AC_MSG_ERROR([neither "mtctr 6" nor "mtctr r6" works])])])])
 
@@ -2760,8 +2764,8 @@ AC_DEFUN([GMP_ASM_SPARC_REGISTER],
 AC_CACHE_CHECK([if the assembler accepts ".register"],
                gmp_cv_asm_sparc_register,
 [GMP_TRY_ASSEMBLE(
-[	$gmp_cv_asm_text
-	.register	%g2,#scratch
+[ $gmp_cv_asm_text
+  .register %g2,#scratch
 ],
 [gmp_cv_asm_sparc_register=yes],
 [gmp_cv_asm_sparc_register=no])])
@@ -2978,7 +2982,7 @@ BEGIN {
           got[12] == "124" &&  \
           got[13] == "000" &&  \
           got[14] == "000" &&  \
-	  got[15] == "000")
+    got[15] == "000")
         {
           print "IEEE big endian"
           found = 1
@@ -3320,11 +3324,11 @@ check (va_alist)
   ret = vsnprintf (buf, 4, fmt, ap);
 
   if (strcmp (buf, "hel") != 0)
-    exit (1);
+    return 1;
 
   /* allowed return values */
   if (ret != -1 && ret != 3 && ret != 11)
-    exit (2);
+    return 2;
 
   return 0;
 }
@@ -3333,7 +3337,7 @@ int
 main ()
 {
 $i
-  exit (0);
+  return 0;
 }
 ],
       [:],
@@ -3466,7 +3470,7 @@ cat >conftest.c <<EOF
 int
 main ()
 {
-  exit(0);
+  return 0;
 }
 EOF
 gmp_compile="$1 conftest.c"
@@ -3540,7 +3544,7 @@ AC_CACHE_CHECK([for build system executable suffix],
 int
 main ()
 {
-  exit (0);
+  return 0;
 }
 EOF
 for i in .exe ,ff8 ""; do
@@ -3574,7 +3578,7 @@ AC_CACHE_CHECK([whether build system compiler is ANSI],
 int
 main (int argc, char *argv[])
 {
-  exit(0);
+  return 0;
 }
 EOF
 gmp_compile="$CC_FOR_BUILD conftest.c"
@@ -3605,10 +3609,11 @@ AC_DEFUN([GMP_CHECK_LIBM_FOR_BUILD],
 AC_CACHE_CHECK([for build system compiler math library],
                gmp_cv_check_libm_for_build,
 [cat >conftest.c <<EOF
+#include <math.h>
 int
 main ()
 {
-  exit(0);
+  return 0;
 }
 double d;
 double
