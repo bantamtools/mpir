@@ -105,7 +105,7 @@ PROLOGUE(mpn_sqr_basecase)
 
 	cmovg	%r8, %rcx
 
-	lea	tab(%rip), %rax
+	lea	L(tab)(%rip), %rax
 ifdef(`PIC',
 `	movslq	(%rax,%rcx,4), %r10
 	add	%r10, %rax
@@ -115,24 +115,24 @@ ifdef(`PIC',
 ')
 	JUMPTABSECT
 	ALIGN(8)
-tab:	JMPENT(	l4, tab)
-	JMPENT(	l1, tab)
-	JMPENT(	l2, tab)
-	JMPENT(	l3, tab)
-	JMPENT(	l0m4, tab)
-	JMPENT(	l1m4, tab)
-	JMPENT(	l2m4, tab)
-	JMPENT(	l3m4, tab)
+L(tab):	JMPENT(	L(l4), L(tab))
+	JMPENT(	L(l1), L(tab))
+	JMPENT(	L(l2), L(tab))
+	JMPENT(	L(l3), L(tab))
+	JMPENT(	L(l0m4), L(tab))
+	JMPENT(	L(l1m4), L(tab))
+	JMPENT(	L(l2m4), L(tab))
+	JMPENT(	L(l3m4), L(tab))
 	TEXT
 
-l1:	mov	(up), %rax
+L(l1):	mov	(up), %rax
 	mul	%rax
 	add	$40, %rsp
 	mov	%rax, (rp)
 	mov	%rdx, 8(rp)
 	ret
 
-l2:	mov	(up), %rax
+L(l2):	mov	(up), %rax
 	mov	%rax, %r8
 	mul	%rax
 	mov	8(up), %r11
@@ -157,7 +157,7 @@ l2:	mov	(up), %rax
 	mov	%r11, 24(rp)
 	ret
 
-l3:	mov	(up), %rax
+L(l3):	mov	(up), %rax
 	mov	%rax, %r10
 	mul	%rax
 	mov	8(up), %r11
@@ -201,7 +201,7 @@ l3:	mov	(up), %rax
 	adc	%r11, 40(rp)
 	ret
 
-l4:	mov	(up), %rax
+L(l4):	mov	(up), %rax
 	mov	%rax, %r11
 	mul	%rax
 	mov	8(up), %rbx
@@ -271,7 +271,7 @@ l4:	mov	(up), %rax
 	ret
 
 
-l0m4:
+L(l0m4):
 	lea	-16(rp,n,8), tp		C point tp in middle of result operand
 	mov	(up), v0
 	mov	8(up), %rax
@@ -287,10 +287,10 @@ C Function mpn_mul_1_m3(tp, up - i, i, up[-i - 1])
 	mov	%rax, w0
 	mov	16(up,j,8), %rax
 	mov	%rdx, w3
-	jmp	lL3
+	jmp	L(lL3)
 
 	ALIGN(16)
-mul_1_m3_top:
+L(mul_1_m3_top):
 	add	%rax, w2
 	mov	w3, (tp,j,8)
 	mov	(up,j,8), %rax
@@ -308,7 +308,7 @@ mul_1_m3_top:
 	add	%rax, w0
 	mov	16(up,j,8), %rax
 	adc	%rdx, w3
-lL3:	xor	w132, w132
+L(lL3):	xor	w132, w132
 	mul	v0
 	add	%rax, w3
 	mov	24(up,j,8), %rax
@@ -316,7 +316,7 @@ lL3:	xor	w132, w132
 	mov	w0, 24(tp,j,8)
 	mul	v0
 	add	$4, j
-	js	mul_1_m3_top
+	js	L(mul_1_m3_top)
 
 	add	%rax, w2
 	mov	w3, (tp)
@@ -326,10 +326,10 @@ lL3:	xor	w132, w132
 
 	lea	eval(2*8)(tp), tp	C tp += 2
 	lea	-8(up), up
-	jmp	dowhile
+	jmp	L(dowhile)
 
 
-l1m4:
+L(l1m4):
 	lea	8(rp,n,8), tp		C point tp in middle of result operand
 	mov	(up), v0		C u0
 	mov	8(up), %rax		C u1
@@ -345,10 +345,10 @@ C Function mpn_mul_2s_m0(tp, up - i, i, up - i - 1)
 	mov	%rdx, w1
 	xor	w232, w232
 	mov	%rax, 8(rp)
-	jmp	lm0
+	jmp	L(lm0)
 
 	ALIGN(16)
-mul_2_m0_top:
+L(mul_2_m0_top):
 	mul	v1
 	add	%rax, w0
 	adc	%rdx, w1
@@ -363,7 +363,7 @@ mul_2_m0_top:
 	add	%rax, w1
 	mov	w0, -24(tp,j,8)
 	adc	%rdx, w2
-lm0:	mov	-16(up,j,8), %rax	C u2, u6 ...
+L(lm0):	mov	-16(up,j,8), %rax	C u2, u6 ...
 	mul	v0			C u0 * u2
 	mov	$0, w332
 	add	%rax, w1
@@ -386,7 +386,7 @@ lm0:	mov	-16(up,j,8), %rax	C u2, u6 ...
 	add	%rax, w3
 	mov	w2, -8(tp,j,8)
 	adc	%rdx, w0
-lm2x:	mov	(up,j,8), %rax
+L(lm2x):	mov	(up,j,8), %rax
 	mul	v0
 	add	%rax, w3
 	adc	%rdx, w0
@@ -394,7 +394,7 @@ lm2x:	mov	(up,j,8), %rax
 	add	$4, j
 	mov	-32(up,j,8), %rax
 	mov	w3, -32(tp,j,8)
-	js	mul_2_m0_top
+	js	L(mul_2_m0_top)
 
 	mul	v1
 	add	%rax, w0
@@ -404,10 +404,10 @@ lm2x:	mov	(up,j,8), %rax
 
 	lea	-16(up), up
 	lea	eval(3*8-24)(tp), tp	C tp += 3
-	jmp	dowhile_end
+	jmp	L(dowhile_end)
 
 
-l2m4:
+L(l2m4):
 	lea	-16(rp,n,8), tp		C point tp in middle of result operand
 	mov	(up), v0
 	mov	8(up), %rax
@@ -422,15 +422,15 @@ C Function mpn_mul_1_m1(tp, up - (i - 1), i - 1, up[-i])
 	mov	%rax, w2
 	mov	(up,j,8), %rax
 	mov	%rdx, w1
-	jmp	lL1
+	jmp	L(lL1)
 
 	ALIGN(16)
-mul_1_m1_top:
+L(mul_1_m1_top):
 	add	%rax, w2
 	mov	w3, (tp,j,8)
 	mov	(up,j,8), %rax
 	adc	%rdx, w1
-lL1:	xor	w032, w032
+L(lL1):	xor	w032, w032
 	mul	v0
 	xor	w332, w332
 	mov	w2, 8(tp,j,8)
@@ -451,7 +451,7 @@ lL1:	xor	w032, w032
 	mov	w0, 24(tp,j,8)
 	mul	v0
 	add	$4, j
-	js	mul_1_m1_top
+	js	L(mul_1_m1_top)
 
 	add	%rax, w2
 	mov	w3, (tp)
@@ -461,10 +461,10 @@ lL1:	xor	w032, w032
 
 	lea	eval(2*8)(tp), tp	C tp += 2
 	lea	-8(up), up
-	jmp	dowhile_mid
+	jmp	L(dowhile_mid)
 
 
-l3m4:
+L(l3m4):
 	lea	8(rp,n,8), tp		C point tp in middle of result operand
 	mov	(up), v0		C u0
 	mov	8(up), %rax		C u1
@@ -481,10 +481,10 @@ C Function mpn_mul_2s_m2(tp, up - i + 1, i - 1, up - i)
 	xor	w032, w032
 	xor	w132, w132
 	mov	%rax, 8(rp)
-	jmp	lm2
+	jmp	L(lm2)
 
 	ALIGN(16)
-mul_2_m2_top:
+L(mul_2_m2_top):
 	mul	v1
 	add	%rax, w0
 	adc	%rdx, w1
@@ -522,7 +522,7 @@ mul_2_m2_top:
 	add	%rax, w3
 	mov	w2, -8(tp,j,8)
 	adc	%rdx, w0
-lm2:	mov	(up,j,8), %rax
+L(lm2):	mov	(up,j,8), %rax
 	mul	v0
 	add	%rax, w3
 	adc	%rdx, w0
@@ -530,7 +530,7 @@ lm2:	mov	(up,j,8), %rax
 	add	$4, j
 	mov	-32(up,j,8), %rax
 	mov	w3, -32(tp,j,8)
-	js	mul_2_m2_top
+	js	L(mul_2_m2_top)
 
 	mul	v1
 	add	%rax, w0
@@ -539,9 +539,9 @@ lm2:	mov	(up,j,8), %rax
 	mov	w1, (tp)
 
 	lea	-16(up), up
-	jmp	dowhile_mid
+	jmp	L(dowhile_mid)
 
-dowhile:
+L(dowhile):
 C Function mpn_addmul_2s_m2(tp, up - (i - 1), i - 1, up - i)
 	lea	4(i), j
 	neg	j
@@ -555,10 +555,10 @@ C Function mpn_addmul_2s_m2(tp, up - (i - 1), i - 1, up - i)
 	adc	%rdx, w3
 	xor	w032, w032
 	xor	w132, w132
-	jmp	lam2
+	jmp	L(lam2)
 
 	ALIGN(16)
-addmul_2_m2_top:
+L(addmul_2_m2_top):
 	add	w3, (tp,j,8)
 	adc	%rax, w0
 	mov	8(up,j,8), %rax
@@ -596,7 +596,8 @@ addmul_2_m2_top:
 	add	w2, 24(tp,j,8)
 	adc	%rax, w3
 	adc	%rdx, w0
-lam2:	mov	32(up,j,8), %rax
+L(lam2):
+        mov	32(up,j,8), %rax
 	mul	v0
 	add	%rax, w3
 	mov	32(up,j,8), %rax
@@ -604,7 +605,7 @@ lam2:	mov	32(up,j,8), %rax
 	adc	$0, w132
 	mul	v1
 	add	$4, j
-	js	addmul_2_m2_top
+	js	L(addmul_2_m2_top)
 
 	add	w3, (tp)
 	adc	%rax, w0
@@ -616,7 +617,7 @@ lam2:	mov	32(up,j,8), %rax
 
 	add	$-2, i32		C i -= 2
 
-dowhile_mid:
+L(dowhile_mid):
 C Function mpn_addmul_2s_m0(tp, up - (i - 1), i - 1, up - i)
 	lea	2(i), j
 	neg	j
@@ -629,10 +630,10 @@ C Function mpn_addmul_2s_m0(tp, up - (i - 1), i - 1, up - i)
 	add	%rax, 8(tp,j,8)
 	adc	%rdx, w1
 	xor	w232, w232
-	jmp	l20
+	jmp	L(l20)
 
 	ALIGN(16)
-addmul_2_m0_top:
+L(addmul_2_m0_top):
 	add	w3, (tp,j,8)
 	adc	%rax, w0
 	mov	8(up,j,8), %rax
@@ -647,7 +648,7 @@ addmul_2_m0_top:
 	add	w0, 8(tp,j,8)
 	adc	%rax, w1
 	adc	%rdx, w2
-l20:	mov	16(up,j,8), %rax
+L(l20):	mov	16(up,j,8), %rax
 	mov	$0, w332
 	mul	v0				C v0 * u1
 	add	%rax, w1
@@ -678,7 +679,7 @@ l20:	mov	16(up,j,8), %rax
 	adc	$0, w132
 	mul	v1
 	add	$4, j
-	js	addmul_2_m0_top
+	js	L(addmul_2_m0_top)
 
 	add	w3, (tp)
 	adc	%rax, w0
@@ -687,10 +688,10 @@ l20:	mov	16(up,j,8), %rax
 	mov	w1, 16(tp)
 
 	lea	eval(2*8)(tp), tp	C tp += 2
-dowhile_end:
+L(dowhile_end):
 
 	add	$-2, i32		C i -= 2
-	jne	dowhile
+	jne	L(dowhile)
 
 C Function mpn_addmul_2s_2
 	mov	-16(up), v0
@@ -724,29 +725,29 @@ C Function mpn_sqr_diag_addlsh1
 	mov	(up,j,4), %rax
 	mul	%rax
 	test	$2, j8
-	jnz	odd
+	jnz	L(odd)
 
-evn:	add	%r11, %r11
+L(evn):	add	%r11, %r11
 	sbb	%ebx, %ebx		C save CF
 	add	%rdx, %r11
 	mov	%rax, (rp,j,8)
-	jmp	ld0
+	jmp	L(ld0)
 
-odd:	add	%r11, %r11
+L(odd):	add	%r11, %r11
 	sbb	%ebp, %ebp		C save CF
 	add	%rdx, %r11
 	mov	%rax, (rp,j,8)
 	lea	-2(j), j
-	jmp	ld1
+	jmp	L(ld1)
 
 	ALIGN(16)
-top:	mov	(up,j,4), %rax
+L(top):	mov	(up,j,4), %rax
 	mul	%rax
 	add	%ebp, %ebp		C restore carry
 	adc	%rax, %r10
 	adc	%rdx, %r11
 	mov	%r10, (rp,j,8)
-ld0:	mov	%r11, 8(rp,j,8)
+L(ld0):	mov	%r11, 8(rp,j,8)
 	mov	16(rp,j,8), %r10
 	adc	%r10, %r10
 	mov	24(rp,j,8), %r11
@@ -759,14 +760,14 @@ ld0:	mov	%r11, 8(rp,j,8)
 	adc	%rax, %r10
 	adc	%rdx, %r11
 	mov	%r10, 16(rp,j,8)
-ld1:	mov	%r11, 24(rp,j,8)
+L(ld1):	mov	%r11, 24(rp,j,8)
 	mov	32(rp,j,8), %r10
 	adc	%r10, %r10
 	mov	40(rp,j,8), %r11
 	adc	%r11, %r11
 	sbb	%ebx, %ebx		C save CF
 	add	$4, j
-	js	top
+	js	L(top)
 
 	mov	(up), %rax
 	mul	%rax

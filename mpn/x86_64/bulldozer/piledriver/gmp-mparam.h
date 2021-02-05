@@ -42,8 +42,6 @@
 
 #define MULMOD_2EXPM1_THRESHOLD          14
 
-#define SB_DIVAPPR_Q_SMALL_THRESHOLD      0  /* always */
-#define SB_DIV_QR_SMALL_THRESHOLD         0  /* always */
 #define DC_DIV_QR_THRESHOLD              38
 #define INV_DIV_QR_THRESHOLD           1970
 #define INV_DIVAPPR_Q_N_THRESHOLD        38
@@ -53,6 +51,10 @@
 #define INV_DIVAPPR_Q_THRESHOLD       17327
 #define DC_BDIV_QR_THRESHOLD             50
 #define DC_BDIV_Q_THRESHOLD              36
+
+#define BINV_NEWTON_THRESHOLD            46
+#define REDC_1_TO_REDC_2_THRESHOLD       48
+#define REDC_2_TO_REDC_N_THRESHOLD        0  /* always */
 
 #define ROOTREM_THRESHOLD                 6
 

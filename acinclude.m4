@@ -44,7 +44,7 @@ define(X86_PATTERN,
 [[i?86*-*-* | k[5-8]*-*-* | pentium*-*-* | prescott-*-* | core-*-* | athlon-*-* | viac3*-*-*]])
 
 define(X86_64_PATTERN,
-[[x86_64-*-* | netburst-*-* | netburstlahf-*-* | k8-*-* | k10-*-* | k102-*-* | k103-*-* | core2-*-* | penryn-*-* | nehalem-*-* | westmere-*-* | sandybridge-*-* | atom-*-* | nano-*-* | bobcat-*-* | bulldozer-*-* | piledriver-*-* | ivybridge-*-* | haswell-*-*]])
+[[x86_64-*-* | netburst-*-* | netburstlahf-*-* | k8-*-* | k10-*-* | k102-*-* | k103-*-* | core2-*-* | penryn-*-* | nehalem-*-* | westmere-*-* | sandybridge-*-* | atom-*-* | nano-*-* | bobcat-*-* | bulldozer-*-* | piledriver-*-* | ivybridge-*-* | haswell-*-*  | haswellavx-*-* | broadwell-*-* | skylake-*-* | skylakeavx-*-*]])
 
 dnl  GMP_FAT_SUFFIX(DSTVAR, DIRECTORY)
 dnl  ---------------------------------
@@ -584,11 +584,14 @@ GMP_PROG_CC_WORKS_PART([$1], [long long reliability test 1],
 
 #if defined(__GNUC__) && !defined(__clang__)
 typedef unsigned long long t1;typedef t1*t2;
+#if defined(__GNUC_STDC_INLINE__)  /* e.g. GCC 5.x defaults to this, not __GNUC_GNU_INLINE__ */
+extern
+#endif
 __inline__ t1 e(t2 rp,t2 up,int n,t1 v0)
 {t1 c,x,r;int i;if(v0){c=1;for(i=1;i<n;i++){x=up[i];r=x+1;rp[i]=r;}}return c;}
-f(){static const struct{t1 n;t1 src[9];t1 want[9];}d[]={{1,{0},{1}},};t1 got[9];int i;
+void f(){static const struct{t1 n;t1 src[9];t1 want[9];}d[]={{1,{0},{1}},};t1 got[9];int i;
 for(i=0;i<1;i++){if(e(got,got,9,d[i].n)==0)h();g(i,d[i].src,d[i].n,got,d[i].want,9);if(d[i].n)h();}}
-h(){}g(){}
+void h(){} void g(){}
 #else
 int dummy;
 #endif
@@ -600,8 +603,9 @@ GMP_PROG_CC_WORKS_PART([$1], [long long reliability test 2],
    1666 to get an ICE with -O1 -mpowerpc64.  */
 
 #ifdef __GNUC__
-f(int u){int i;long long x;x=u?~0:0;if(x)for(i=0;i<9;i++);x&=g();if(x)g();}
-g(){}
+extern int g();
+void f(int u){int i;long long x;x=u?~0:0;if(x)for(i=0;i<9;i++);x&=g();if(x)g();}
+int g(){return 0;}
 #else
 int dummy;
 #endif
@@ -3320,11 +3324,11 @@ check (va_alist)
   ret = vsnprintf (buf, 4, fmt, ap);
 
   if (strcmp (buf, "hel") != 0)
-    exit (1);
+    return 1;
 
   /* allowed return values */
   if (ret != -1 && ret != 3 && ret != 11)
-    exit (2);
+    return 2;
 
   return 0;
 }
@@ -3333,7 +3337,7 @@ int
 main ()
 {
 $i
-  exit (0);
+  return 0;
 }
 ],
       [:],
@@ -3466,7 +3470,7 @@ cat >conftest.c <<EOF
 int
 main ()
 {
-  exit(0);
+  return 0;
 }
 EOF
 gmp_compile="$1 conftest.c"
@@ -3540,7 +3544,7 @@ AC_CACHE_CHECK([for build system executable suffix],
 int
 main ()
 {
-  exit (0);
+  return 0;
 }
 EOF
 for i in .exe ,ff8 ""; do
@@ -3574,7 +3578,7 @@ AC_CACHE_CHECK([whether build system compiler is ANSI],
 int
 main (int argc, char *argv[])
 {
-  exit(0);
+  return 0;
 }
 EOF
 gmp_compile="$CC_FOR_BUILD conftest.c"
@@ -3605,10 +3609,11 @@ AC_DEFUN([GMP_CHECK_LIBM_FOR_BUILD],
 AC_CACHE_CHECK([for build system compiler math library],
                gmp_cv_check_libm_for_build,
 [cat >conftest.c <<EOF
+#include <math.h>
 int
 main ()
 {
-  exit(0);
+  return 0;
 }
 double d;
 double

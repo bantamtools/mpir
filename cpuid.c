@@ -87,6 +87,8 @@ return 0;}
 #endif
 #endif
 
+#define FEAT_HAS_AVX 0x10000000
+
 #if CONFIG_GUESS
 // use's the stringinzing directive  #x   ie #x expands to "x"
 #define CPUIS(x)	modelstr=#x
@@ -100,7 +102,7 @@ struct cpuvec_t decided_cpuvec;
   char vendor_string[13];
   char features[12];
   long fms;
-  int family, model, stepping,feat;
+  int family, model, stepping;
   char *modelstr=0;
 
 #if INFAT
@@ -160,8 +162,8 @@ CPUVEC_SETUP_x86_64;
 	  if (model == 38){ CPUIS(atom);break;}// atom z670 tunnel creek
 	  if (model == 39){ CPUIS(atom);break;}// Intel Atom Z2460 (Medfield platform, Penwell SoC, Saltwell core)
 	  if (model == 42){
-        feat = ((int *)features)[2];
-        if (feat & 0x10000000) { CPUIS(sandybridge);break;}
+        int feat = ((int *)features)[2];
+        if (feat & FEAT_HAS_AVX) { CPUIS(sandybridge);break;}
         else { CPUIS(westmere);break;} /* Really a crippled sandybridge with no avx */
      }
 	  if (model == 43){ CPUIS(sandybridge);break;}
@@ -171,9 +173,25 @@ CPUVEC_SETUP_x86_64;
 	  if (model == 47){ CPUIS(westmere);break;}
 	  if (model == 54){ CPUIS(atom);break;}//DualCore Intel Atom D2700, 2133 MHz (16 x 133) (Cedarview, Saltwell core) 32nm
 	  if (model == 55){ CPUIS(atom);break;}
-     if (model == 58){ CPUIS(ivybridge);break;}
-	  if (model == 60){ CPUIS(haswell);break;}
-     if (model == 62){ CPUIS(ivybridge);break;}
+          if (model == 58){ CPUIS(ivybridge);break;}
+	  if (model == 60){
+          int feat = ((int *)features)[2];
+          if (feat & FEAT_HAS_AVX) { CPUIS(haswellavx);break; } /* Core i Haswell */
+          else { CPUIS(haswell);break; } /* Celeron/Pentium Haswell without AVX */
+      }
+          if (model == 61){ CPUIS(broadwell);break;}
+          if (model == 62){ CPUIS(ivybridge);break;}
+          if (model == 63){ CPUIS(haswellavx);break;}
+          if (model == 69){ CPUIS(haswellavx);break;}
+          if (model == 70){ CPUIS(haswellavx);break;}
+          if (model == 71){ CPUIS(broadwell);break;}
+          if (model == 78){ CPUIS(skylakeavx);break;}
+          if (model == 79){ CPUIS(broadwell);break;}
+          if (model == 94){
+              int feat = ((int *)features)[2];
+              if (feat & FEAT_HAS_AVX) { CPUIS(skylakeavx);break; } /* Core i Skylake */
+              else { CPUIS(skylake);break; } /* Celeron/Pentium Skylake without AVX2 */
+          }
      break;
    case 15:
         #if CONFIG_GUESS_64BIT || FAT64
@@ -183,7 +201,7 @@ CPUVEC_SETUP_x86_64;
         #endif
         #if CONFIG_GUESS_32BIT || FAT32
 	  if (model <= 6) { CPUIS(pentium4);break;}
-	  feat = ((int *)features)[2];
+          int feat = ((int *)features)[2];
           if (feat & 1) { CPUIS(prescott);break;}
         #endif
           break;
