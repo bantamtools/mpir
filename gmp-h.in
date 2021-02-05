@@ -57,7 +57,6 @@ along with the GNU MP Library.  If not, see http://www.gnu.org/licenses/.  */
 #ifndef __GNU_MP__
 #define __GNU_MP__ 4
 
-#ifdef OLDSCHOOL_C_BEFORE_CXX /* breaks on new clang compiler if we only include size_t estee*/
 #define __need_size_t  /* tell gcc stddef.h we only want size_t */
 #if ! defined (__cplusplus)
 #include <stddef.h>    /* for size_t */
