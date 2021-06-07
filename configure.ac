@@ -29,8 +29,8 @@ AC_COPYRIGHT(GMP_COPYRIGHT)
 AH_TOP(/*GMP_COPYRIGHT*/)
 
 AC_REVISION($Revision: 1.11 $)
-AC_PREREQ(2.68)
-AC_INIT(MPIR, MPIR_VERSION, http://groups.google.co.uk/group/mpir-devel/, mpir)
+AC_PREREQ([2.71])
+AC_INIT([MPIR],[MPIR_VERSION],[http://groups.google.co.uk/group/mpir-devel/],[mpir])
 AC_CONFIG_SRCDIR(gmp-impl.h)
 m4_pattern_forbid([^[ \t]*GMP_])
 m4_pattern_allow(GMP_LDFLAGS)
@@ -70,13 +70,13 @@ AM_MAINTAINER_MODE
 
 dnl  Yasm configuration
 AC_ARG_WITH([yasm],
-[AC_HELP_STRING([--with-yasm],[use a custom Yasm])],
+[AS_HELP_STRING([--with-yasm],[use a custom Yasm])],
 [],
 []
 )
 
 AC_ARG_ENABLE(assert,
-AC_HELP_STRING([--enable-assert],[enable ASSERT checking [[default=no]]]),
+AS_HELP_STRING([--enable-assert],[enable ASSERT checking [[default=no]]]),
 [case $enableval in
 yes|no) ;;
 *) AC_MSG_ERROR([bad value $enableval for --enable-assert, need yes or no]) ;;
@@ -94,7 +94,7 @@ GMP_DEFINE_RAW(["define(<WANT_ASSERT>,$want_assert_01)"])
 
 
 AC_ARG_ENABLE(alloca,
-AC_HELP_STRING([--enable-alloca],[how to get temp memory [[default=reentrant]]]),
+AS_HELP_STRING([--enable-alloca],[how to get temp memory [[default=reentrant]]]),
 [case $enableval in
 alloca|malloc-reentrant|malloc-notreentrant) ;;
 yes|no|reentrant|notreentrant) ;;
@@ -119,7 +119,7 @@ esac],
 # wanted.
 #
 AC_ARG_ENABLE(cxx,
-AC_HELP_STRING([--enable-cxx],[enable C++ support [[default=no]]]),
+AS_HELP_STRING([--enable-cxx],[enable C++ support [[default=no]]]),
 [case $enableval in
 yes|no|detect) ;;
 *) AC_MSG_ERROR([bad value $enableval for --enable-cxx, need yes/no/detect]) ;;
@@ -128,7 +128,7 @@ esac],
 
 
 AC_ARG_ENABLE(fft,
-AC_HELP_STRING([--enable-fft],[enable FFTs for multiplication [[default=yes]]]),
+AS_HELP_STRING([--enable-fft],[enable FFTs for multiplication [[default=yes]]]),
 [case $enableval in
 yes|no) ;;
 *) AC_MSG_ERROR([bad value $enableval for --enable-fft, need yes or no]) ;;
@@ -141,8 +141,7 @@ if test "$enable_fft" = "yes"; then
 fi
 
 AC_ARG_ENABLE(gmpcompat,
-AC_HELP_STRING([--enable-gmpcompat],
-               [create library and header files named gmp as well as mpir [[default=no]]]),
+AS_HELP_STRING([--enable-gmpcompat],[create library and header files named gmp as well as mpir [[default=no]]]),
 [case $enableval in
 yes|no) ;;
 *) AC_MSG_ERROR([bad value $enableval for --enable-gmpcompat, need yes or no]) ;;
@@ -151,7 +150,7 @@ esac],
 AM_CONDITIONAL(WANT_GMPCOMPAT, test "$enable_gmpcompat" = "yes")
 
 AC_ARG_ENABLE(nails,
-AC_HELP_STRING([--enable-nails],[use nails on limbs [[default=no]]]),
+AS_HELP_STRING([--enable-nails],[use nails on limbs [[default=no]]]),
 [case $enableval in
 [no|[0]]) ;;
 *) AC_MSG_ERROR([bad value $enableval for --enable-nails, Sorry nails not available in this build]) ;;
@@ -167,8 +166,7 @@ AC_SUBST(GMP_NAIL_BITS)
 
 
 AC_ARG_ENABLE(profiling,
-AC_HELP_STRING([--enable-profiling],
-               [build with profiler support [[default=no]]]),
+AS_HELP_STRING([--enable-profiling],[build with profiler support [[default=no]]]),
 [case $enableval in
 no|prof|gprof|instrument) ;;
 *) AC_MSG_ERROR([bad value $enableval for --enable-profiling, need no/prof/gprof/instrument]) ;;
@@ -200,8 +198,7 @@ else
 fi
 
 AC_ARG_ENABLE(fat,
-AC_HELP_STRING([--enable-fat],
-               [build a fat binary on systems that support it [[default=no]]]),
+AS_HELP_STRING([--enable-fat],[build a fat binary on systems that support it [[default=no]]]),
 [case $enableval in
 yes|no) ;;
 *) AC_MSG_ERROR([bad value $enableval for --enable-fat, need yes or no]) ;;
@@ -220,7 +217,7 @@ esac],
 # After GMP specific searches and tests, the standard autoconf AC_PROG_CC is
 # called.  User selections of CC etc are respected.
 #
-# Care is taken not to use macros like AC_TRY_COMPILE during the GMP
+# Care is taken not to use macros like AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[]])],[],[]) during the GMP
 # pre-testing, since they of course depend on AC_PROG_CC, and also some of
 # them cache their results, which is not wanted.
 #
@@ -312,7 +309,13 @@ abilist="standard"
 # FIXME: We'd like to prefer an ANSI compiler, perhaps by preferring
 # c89 over cc here.  But note that on HP-UX c89 provides a castrated
 # environment, and would want to be excluded somehow.  Maybe
-# AC_PROG_CC_STDC already does enough to stick cc into ANSI mode and
+# m4_warn([obsolete],
+[m4_warn([obsolete],
+[AC_PROG_CC_STDC is obsolete; use AC_PROG_CC
+])dnl
+AC_REQUIRE(AC_PROG_CC) is obsolete; use AC_PROG_CC
+])dnl
+AC_REQUIRE(AC_PROG_CC) already does enough to stick cc into ANSI mode and
 # we don't need to worry.
 #
 cclist="gcc cc"
@@ -1352,7 +1355,7 @@ esac
 CFLAGS_or_unset=${CFLAGS-'(unset)'}
 CPPFLAGS_or_unset=${CPPFLAGS-'(unset)'}
 
-cat >&AC_FD_CC <<EOF
+cat >&AS_MESSAGE_LOG_FD <<EOF
 User:
 ABI=$ABI
 CC=$CC
@@ -1716,11 +1719,17 @@ longlong) DEFN_LONG_LONG_LIMB="#define _LONG_LONG_LIMB 1"    ;;
 esac
 AC_SUBST(DEFN_LONG_LONG_LIMB)
 
-AC_GNU_SOURCE
+AC_USE_SYSTEM_EXTENSIONS
 
 # The C compiler and preprocessor, put into ANSI mode if possible.
 AC_PROG_CC
-AC_PROG_CC_STDC
+m4_warn([obsolete],
+[m4_warn([obsolete],
+[AC_PROG_CC_STDC is obsolete; use AC_PROG_CC
+])dnl
+AC_REQUIRE(AC_PROG_CC) is obsolete; use AC_PROG_CC
+])dnl
+AC_REQUIRE(AC_PROG_CC)
 AC_PROG_CPP
 GMP_H_ANSI
 
@@ -1766,7 +1775,7 @@ AC_PROG_CXX
 want_cxx=no
 if test $enable_cxx != no; then
 
-  echo "CXXFLAGS chosen by autoconf: $CXXFLAGS" >&AC_FD_CC
+  echo "CXXFLAGS chosen by autoconf: $CXXFLAGS" >&AS_MESSAGE_LOG_FD
   cxxflags_ac_prog_cxx=$CXXFLAGS
   cxxflags_list=ac_prog_cxx
 
@@ -1853,7 +1862,7 @@ case $host in
 esac
 
 
-cat >&AC_FD_CC <<EOF
+cat >&AS_MESSAGE_LOG_FD <<EOF
 Decided:
 ABI=$ABI
 CC=$CC
@@ -1914,7 +1923,13 @@ Use "--disable-static --enable-shared" to build just a DLL.])
     fi
 
     # "-no-undefined" is required when building a DLL, see documentation on
-    # AC_LIBTOOL_WIN32_DLL.
+    # AC_REQUIRE(AC_CANONICAL_HOST)_LT_SET_OPTION([LT_INIT],[win32-dll])
+m4_warn([obsolete],[AC_REQUIRE(AC_CANONICAL_HOST)_LT_SET_OPTION([LT_INIT],[win32-dll])
+m4_warn([obsolete],[AC_LIBTOOL_WIN32_DLL: Remove this warning and the call to _LT_SET_OPTION when you
+put the 'win32-dll' option into LT_INIT's first parameter.])
+: Remove this warning and the call to _LT_SET_OPTION when you
+put the 'win32-dll' option into LT_INIT's first parameter.])
+.
     #
     # "-Wl,--export-all-symbols" is a bit of a hack, it gets all libmpir and
     # libmpirxx functions and variables exported.  This is what libtool did
@@ -1967,8 +1982,29 @@ AM_CONDITIONAL(ENABLE_SHARED, test "$enable_shared" = yes)
 # Many of these library and header checks are for the benefit of
 # supplementary programs.  libmpir doesn't use anything too weird.
 
-AC_HEADER_STDC
-AC_HEADER_TIME
+m4_warn([obsolete],
+[The preprocessor macro `STDC_HEADERS' is obsolete.
+  Except in unusual embedded environments, you can safely include all
+  ISO C90 headers unconditionally.])dnl
+# Autoupdate added the next two lines to ensure that your configure
+# script's behavior did not change.  They are probably safe to remove.
+AC_CHECK_INCLUDES_DEFAULT
+AC_PROG_EGREP
+
+m4_warn([obsolete],
+[Update your code to rely only on HAVE_SYS_TIME_H,
+then remove this warning and the obsolete code below it.
+All current systems provide time.h; it need not be checked for.
+Not all systems provide sys/time.h, but those that do, all allow
+you to include it and time.h simultaneously.])dnl
+AC_CHECK_HEADERS_ONCE([sys/time.h])
+# Obsolete code to be removed.
+if test $ac_cv_header_sys_time_h = yes; then
+  AC_DEFINE([TIME_WITH_SYS_TIME],[1],[Define to 1 if you can safely include both <sys/time.h>
+	     and <time.h>.  This macro is obsolete.])
+fi
+# End of obsolete code.
+
 
 # Reasons for testing:
 #   float.h - not in SunOS bundled cc
