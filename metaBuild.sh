@@ -33,7 +33,7 @@ if [ "$1" = "release" -o "$1" = "debug" ]; then
   elif echo "$SYSTEM_NAME" | grep -q "MINGW64_NT"; then
     echo "Building for Windows"
     (cd $DIR && \
-    ./configure --libdir=$PREFIX --host=corei7-w64-mingw64 --enable-fat --enable-cxx --enable-gmpcompat --disable-static --enable-shared && \
+    ./configure --libdir=$PREFIX --host=x86_64-w64-mingw64 --enable-fat --enable-cxx --enable-gmpcompat --disable-static --enable-shared && \
     make)
   elif echo "$SYSTEM_NAME" | grep -q "MSYS"; then
     echo "ERROR: the MSYS shell is not supported. Please use the MinGW-w64 Win64 Shell instead."
