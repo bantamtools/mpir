@@ -17,13 +17,13 @@ if [ "$1" = "release" -o "$1" = "debug" ]; then
     make)
   elif [ "$SYSTEM_NAME" = "Linux" ]; then
     echo "Building for Linux, architecture set to $ARCH"
-    if [ "$ARCH" = "arm" ]; then
+    if [ "$ARCH" = "armv8-a" ]; then
       # FIXME: Not sure how to get clang working in dockcross yet
       # ./configure --build=$ARCH --libdir=$PREFIX CC=clang CXX=clang++ CXXFLAGS="-std=c++11 -mcpu=arm7 -mtune=generic-arm7" CFLAGS="-mcpu=arm7 -mtune=generic-arm7" --enable-cxx --enable-gmpcompat --disable-static --enable-shared && \
       # this doesn't make a share library for some reason:
       # ./configure --build=$ARCH --libdir=$PREFIX CXXFLAGS="-fPIC" --enable-cxx --enable-gmpcompat --disable-static --enable-shared && \
       (cd $DIR && \
-      ./configure --build=$ARCH --libdir=$PREFIX CC=clang CXX=clang++ CXXFLAGS="-std=c++11 -march=armv7" --enable-cxx --enable-gmpcompat --disable-static --enable-shared && \
+      ./configure --libdir=$PREFIX CC=clang CXX=clang++ CXXFLAGS="-std=c++11 -march=armv8-a" --enable-cxx --enable-gmpcompat --disable-static --enable-shared && \
       make)
     else
       (cd $DIR && \
