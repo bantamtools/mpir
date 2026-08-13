@@ -12,8 +12,39 @@ if [ "$1" = "release" -o "$1" = "debug" ]; then
   SYSTEM_NAME=`uname -s`
   if [ "$SYSTEM_NAME" = "Darwin" ]; then
     echo "Building for OSX, architecture set to $ARCH"
+    # Apple clang needs an explicit -arch fat-binary selector to actually target a
+    # non-host architecture (e.g. cross-compiling x86-64 object code from an arm64
+    # host, or vice versa); -march= alone only tunes codegen for whatever arch clang
+    # already defaults to (the host arch), so without -arch a cross-arch -march=
+    # value is rejected outright ("unsupported argument 'x86-64' to option
+    # '-march='"). Mirrors the identical fix applied to geode's SConstruct for the
+    # same otherplan macOS universal-build work (see otherplan
+    # releng/macos/build-universal-deps.sh). Scoped to this Darwin branch only -- no
+    # effect on the Linux/Windows branches below.
+    case "$ARCH" in
+      armv8-a) APPLE_ARCH="arm64" ;;
+      x86-64)  APPLE_ARCH="x86_64" ;;
+      *)       APPLE_ARCH="" ;;
+    esac
+    if [ -n "$APPLE_ARCH" ]; then
+      DARWIN_ARCH_FLAG=" -arch $APPLE_ARCH"
+    else
+      DARWIN_ARCH_FLAG=""
+    fi
+    # -arch must also live inside the CXX= value itself, not just CXXFLAGS: mpir's
+    # generated libtool script builds each C++ convenience library (libmpirxx,
+    # libgmpxx) via a Darwin-only "master object" merge step
+    # ($CC -r -keep_private_externs -nostdlib -o $lib-master.o $libobjs, from
+    # aclocal.m4's archive_cmds) that intentionally omits $compiler_flags -- so
+    # CXXFLAGS's -arch never reaches it. $CC there resolves to whatever CXX= was
+    # configured as, so baking -arch into CXX= is the only way to reach that step.
+    # Confirmed empirically: without this, the x86-64 pass silently links arm64
+    # cxx/.libs/*.o objects into a master.o step that defaults to the host's arch
+    # (arm64) absent any -arch flag, and ld -r drops every mismatched-arch object
+    # with only a warning -- producing an incomplete (missing C++ wrapper symbols)
+    # but still-valid-looking single-arch x86_64 dylib.
     (cd $DIR && \
-    ./configure --libdir=$PREFIX CXX='clang++ -std=c++11 -stdlib=libc++' CXXFLAGS="-march=$ARCH -mtune=generic -mmacosx-version-min=10.8" CFLAGS="-march=$ARCH -mtune=generic" --enable-cxx --enable-gmpcompat --disable-static --enable-shared && \
+    ./configure --libdir=$PREFIX CXX="clang++ -std=c++11 -stdlib=libc++$DARWIN_ARCH_FLAG" CXXFLAGS="-march=$ARCH -mtune=generic -mmacosx-version-min=10.8$DARWIN_ARCH_FLAG" CFLAGS="-march=$ARCH -mtune=generic$DARWIN_ARCH_FLAG" --enable-cxx --enable-gmpcompat --disable-static --enable-shared && \
     make)
   elif [ "$SYSTEM_NAME" = "Linux" ]; then
     echo "Building for Linux, architecture set to $ARCH"
